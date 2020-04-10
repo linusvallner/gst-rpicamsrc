@@ -122,6 +122,8 @@ typedef struct
    int jpegRestartInterval;
 
    int useSTC;
+
+   int mmalBufTimeout;
 } RASPIVID_CONFIG;
 
 typedef struct RASPIVID_STATE_T RASPIVID_STATE;
