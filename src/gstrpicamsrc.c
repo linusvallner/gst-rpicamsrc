@@ -139,7 +139,8 @@ enum
   PROP_VIDEO_DIRECTION,
 #endif
   PROP_JPEG_QUALITY,
-  PROP_USE_STC
+  PROP_USE_STC,
+  PROP_MMAL_BUF_TIMEOUT
 };
 
 #define CAMERA_DEFAULT 0
@@ -162,6 +163,8 @@ enum
 #define EXPOSURE_METERING_MODE_DEFAULT GST_RPI_CAM_SRC_EXPOSURE_METERING_MODE_AVERAGE
 
 #define DEFAULT_JPEG_QUALITY 50
+
+#define DEFAULT_MMAL_BUF_TIMEOUT 1500
 
 /*
    params->exposureMode = MMAL_PARAM_EXPOSUREMODE_AUTO;
@@ -493,6 +496,10 @@ gst_rpi_cam_src_class_init (GstRpiCamSrcClass * klass)
       g_param_spec_boolean ("use-stc", "Use System Time Clock",
           "Use the camera STC for timestamping buffers", TRUE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_MMAL_BUF_TIMEOUT,
+      g_param_spec_int ("mmal-buf-timeout", "MMAL buffer timeout",
+          "Set the MMAL buffer timeout", 0, G_MAXINT, DEFAULT_MMAL_BUF_TIMEOUT,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_set_static_metadata (gstelement_class,
       "Raspberry Pi Camera Source", "Source/Video",
@@ -523,6 +530,7 @@ gst_rpi_cam_src_init (GstRpiCamSrc * src)
   src->capture_config.intraperiod = KEYFRAME_INTERVAL_DEFAULT;
   src->capture_config.verbose = 1;
   src->capture_config.useSTC = TRUE;
+  src->capture_config.mmalBufTimeout = DEFAULT_MMAL_BUF_TIMEOUT;
 
   g_mutex_init (&src->config_lock);
 
@@ -1014,6 +1022,9 @@ gst_rpi_cam_src_set_property (GObject * object, guint prop_id,
     case PROP_USE_STC:
       src->capture_config.useSTC = g_value_get_boolean (value);
       break;
+    case PROP_MMAL_BUF_TIMEOUT:
+      src->capture_config.mmalBufTimeout = g_value_get_int (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -1180,6 +1191,9 @@ gst_rpi_cam_src_get_property (GObject * object, guint prop_id,
 #endif
     case PROP_USE_STC:
       g_value_set_boolean (value, src->capture_config.useSTC);
+      break;
+    case PROP_MMAL_BUF_TIMEOUT:
+      g_value_set_int (value, src->capture_config.mmalBufTimeout);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

@@ -1330,7 +1330,7 @@ int raspicamcontrol_set_annotate(MMAL_COMPONENT_T *camera, const int settings, c
    {
       time_t t = time(NULL);
       struct tm tm = *localtime(&t);
-      char tmp[MMAL_CAMERA_ANNOTATE_MAX_TEXT_LEN_V3];
+      char tmp[MMAL_CAMERA_ANNOTATE_MAX_TEXT_LEN_V3-1];
 
        annotate.enable = 1;
 
